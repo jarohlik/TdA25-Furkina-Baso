@@ -1,6 +1,6 @@
 import os
-
-from flask import Flask
+import json  # Import pre prácu s JSON
+from flask import Flask, jsonify  # Import pre jsonify
 from . import db
 
 app = Flask(__name__)
@@ -17,12 +17,21 @@ except OSError:
 
 db.init_app(app)
 
-
 @app.route('/')
 def hello_world():  # put application's code here
     return "Hello Tour de App!"
     return "Hello From Furkina Baso!"
 
+
+@app.route('/api', methods=['GET'])
+def api_endpoint():
+    data = {"organization": "Student Cyber Games"}
+    json_file_path = os.path.join(app.instance_path, 'data.json')
+
+    with open(json_file_path, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
+
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run()
