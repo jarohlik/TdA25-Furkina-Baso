@@ -1,6 +1,6 @@
 import os
-import json  # Import pre prácu s JSON
-from flask import Flask, jsonify  # Import pre jsonify
+import json
+from flask import Flask, jsonify, render_template
 from . import db
 
 app = Flask(__name__)
@@ -17,21 +17,23 @@ except OSError:
 
 db.init_app(app)
 
+# API route to return data from data.json
+@app.route('/api')
+def get_data():
+    try:
+        data_path = os.path.join(app.root_path, 'data', 'data.json')
+        with open(data_path, 'r', encoding="utf8") as f:
+            data = json.load(f)
+        return jsonify(data)
+    except FileNotFoundError:
+        return jsonify({"error": "data.json not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON format in data.json"}), 400
+
+# Main route to render index.html
 @app.route('/')
-def hello_world():  # put application's code here
-    return "Hello Tour de App!"
-    return "Hello From Furkina Baso!"
-
-
-@app.route('/api', methods=['GET'])
-def api_endpoint():
-    data = {"organization": "Student Cyber Games"}
-    json_file_path = os.path.join(app.instance_path, 'data.json')
-
-    with open(json_file_path, 'w') as json_file:
-        json.dump(data, json_file, indent=4)
-
-    return jsonify(data)
+def index():
+    return render_template('index.html')  # Renders the HTML template
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
